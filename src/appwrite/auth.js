@@ -61,6 +61,8 @@ export class AuthService {
         return null 
         // in case try and catch both not able to return something
     }
+
+    
 }
 
 const authService = new AuthService()
