@@ -1,9 +1,19 @@
+const requiredEnv = (key) =>{
+    const value = import.meta.env[key]
+    if(!value) {
+        throw new Error ("problem in fetch of the value")
+    }
+    return value;
+}
+
+
+
 const conf = {
-    appwriteUrl: String(import.meta.env.VITE_APPWRITE_URL),
-    appwriteProjectId: String(import.meta.env.VITE_APPWRITE_PROJECT_ID),
-    databaseId: String(import.meta.env.VITE_APPWRITE_DATABASE_ID),
-    collectionId: String(import.meta.env.VITE_APPWRITE_COLLECTION_ID),
-    bucketId: String(import.meta.env.VITE_APPWRITE_BUCKET_ID)
+    appwriteUrl: requiredEnv(VITE_APPWRITE_URL),
+    appwriteProjectId: requiredEnv(VITE_APPWRITE_PROJECT_ID),
+    appwriteDatabaseId: requiredEnv(VITE_APPWRITE_DATABASE_ID),
+    appwriteCollectionId: requiredEnv(VITE_APPWRITE_COLLECTION_ID),
+    appwriteBucketId: requiredEnv(VITE_APPWRITE_BUCKET_ID)
 }
 
 export default conf;
