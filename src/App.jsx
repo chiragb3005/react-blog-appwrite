@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import './App.css'
 import conf from './config/config'
 
 function App() {
+
+  const [loading, setLoading] = useState(true)
 
   console.log(conf.appwriteUrl)
 
