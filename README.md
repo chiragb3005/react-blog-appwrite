@@ -27,6 +27,7 @@ Users can authenticate, create posts, and manage content with a clean and respon
 * React Router DOM
 * React Hook Form
 * Tailwind CSS
+* TinyMCE
 
 **Backend / Services:**
 
