@@ -136,7 +136,7 @@ Chirag Bansal
 
 ## ⭐ Acknowledgement
 
-Built as a full-stack learning project to understand modern React architecture and backend integration.
+Built as a frontend (along with some backend services to make it useful) learning project to understand modern React architecture and backend integration.
 
 ---
 
