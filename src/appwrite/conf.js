@@ -20,16 +20,17 @@ export class authService {
             return await this.databases.createDocument(
                 conf.appwriteDatabaseId,
                 conf.appwriteCollectionId,
-                slug,
+                ID.unique(), // ✅ FIXED
                 {
                     title,
+                    slug, // ✅ store slug here instead
                     content,
                     featuredImage,
                     status,
                     userId,
                 },
                 [
-                    Permission.read(Role.user(userId)),
+                    Permission.read(Role.any()), // or Role.user(userId)
                     Permission.update(Role.user(userId)),
                     Permission.delete(Role.user(userId)),
                 ]
@@ -118,6 +119,19 @@ export class authService {
             conf.appwriteBucketId,
             fileId
         ).toString();
+    }
+
+    async getPost(slug) {
+        try {
+            return await this.databases.getDocument(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                slug
+            );
+        } catch (error) {
+            console.log("Error getting single post:", error);
+            return false;
+        }
     }
 }
 
