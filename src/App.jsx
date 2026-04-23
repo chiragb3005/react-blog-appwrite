@@ -1,51 +1,36 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import conf from './config/config'
+import React, { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-// dispatch used to merge react with redux
-import authService from './appwrite/auth'
-import {login, logout} from './store/authSlice'
-import {Header, Footer} from './components/index'
-import {Outlet} from 'react-router-dom'
+import './App.css'
+import authService from "./appwrite/auth"
+import { login, logout } from "./store/authSlice"
+import { Footer, Header } from './components'
+import { Outlet } from 'react-router-dom'
 
 function App() {
-
   const [loading, setLoading] = useState(true)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    // check if we are login
     authService.getCurrentUser()
-    .then((userData) => {
-      if(userData){
-        dispatch(login({
-            $id: userData.$id,
-            name: userData.name,
-            email: userData.email,
-        }))
-      }
-      else {
-        dispatch(logout())
-      }
-    })
-    .finally(() => setLoading(false))  
+      .then((userData) => {
+        if (userData) {
+          dispatch(login({ userData }))
+        } else {
+          dispatch(logout())
+        }
+      })
+      .finally(() => setLoading(false))
   }, [])
 
-  console.log(conf.appwriteUrl)
-
   return !loading ? (
-    <>
-      <div className='min-h-screen flex flex-wrap content-between bg-gray-400'>
-        <div className='w-full block'>
-          <Header/>
-          <main className='text-center text-4xl p-4'>
-            <Outlet/>
-          </main>
-          <Footer/>
-        </div>
-      </div>
-    </>
-  ) : <h1 className='text-center text-4xl text-black'>Checking...</h1> 
+    <div className='app-shell'>
+      <Header />
+      <main className='app-main'>
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  ) : null
 }
 
 export default App

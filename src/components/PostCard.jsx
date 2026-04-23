@@ -1,23 +1,38 @@
-import React from "react";
-import service from "../appwrite/conf";
-import { Link } from "react-router-dom";
+import React from 'react'
+import appwriteService from "../appwrite/conf"
+import { Link } from 'react-router-dom'
 
-function PostCard ({$id, title, featuredImage}) {
-    console.log("preview URL:", service.getFilePreview(featuredImage).toString())
+function PostCard({ $id, title, featuredImage }) {
+
     return (
         <Link to={`/post/${$id}`}>
-            <div className="w-full bg-gray-100 rounded-xl p-4">
-                <div className="w-full justify-center mb-4">
-                    {featuredImage && (        // 👈 only call if featuredImage exists
-                        <img src={service.getFilePreview(featuredImage)} alt={title}
-                        className="rounded-xl" />
-                        
+            <article className='post-card animate-rise'>
+                <div className='relative aspect-[4/3] overflow-hidden bg-[linear-gradient(135deg,rgba(212,101,61,0.12),rgba(30,36,51,0.08))]'>
+                    {featuredImage ? (
+                        <img
+                            src={appwriteService.getFilePreview(featuredImage)}
+                            alt={title}
+                            className='h-full w-full object-cover transition duration-300 hover:scale-[1.03]'
+                        />
+                    ) : (
+                        <div className='flex h-full items-center justify-center px-8 text-center font-[Georgia] text-2xl text-slate-500'>
+                            Story cover
+                        </div>
                     )}
                 </div>
-                <h2 className="text-2xl font-bold">{title}</h2>
-            </div>
+                <div className='flex flex-1 flex-col gap-3 p-5'>
+                    <span className='eyebrow w-fit'>Article</span>
+                    <h2 className='font-[Georgia] text-2xl font-bold leading-tight tracking-[-0.03em] text-slate-900'>
+                        {title}
+                    </h2>
+                    <p className='text-sm leading-7 text-slate-600'>
+                        Open the full post, read the published content, or jump into editing if you authored it.
+                    </p>
+                </div>
+            </article>
         </Link>
     )
 }
 
-export default PostCard;
+
+export default PostCard

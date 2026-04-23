@@ -1,23 +1,26 @@
-import React, {useId} from "react";
+import React, { useId } from 'react'
 
-const Input = React.forwardRef(({
+const Input = React.forwardRef(function Input({
     label,
-    type = 'text',
-    className='',
+    type = "text",
+    className = "",
     ...props
-}, ref) => {
+}, ref) {
     const id = useId()
     return (
-        <div className="w-full">
-            {label && <label className="inline-block mb-1 text-base" htmlFor={id}>
-                 {label}
+        <div className='field-shell w-full'>
+            {label && <label
+                className='pl-1'
+                htmlFor={id}>
+                {label}
             </label>
             }
-            <input type={type}
-            className={`px-3 py-2 text-base roundedlg bg-white text-black outline-none focus:bg-gray-50 duration-200 border border-gray-200 w-full ${className}`} 
-            ref={ref}
-            {...props}
-            id={id}
+            <input
+                type={type}
+                className={`field-input ${className}`}
+                ref={ref}
+                {...props}
+                id={id}
             />
         </div>
     )

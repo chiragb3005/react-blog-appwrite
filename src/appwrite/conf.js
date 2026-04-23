@@ -1,7 +1,7 @@
-import conf from "../config/config";
-import { Client, ID, Databases, Storage, Query, Permission, Role } from "appwrite";
+import conf from '../config/config.js';
+import { Client, ID, Databases, Storage, Query } from "appwrite";
 
-export class authService {
+export class Service {
     client = new Client();
     databases;
     bucket;
@@ -10,7 +10,6 @@ export class authService {
         this.client
             .setEndpoint(conf.appwriteUrl)
             .setProject(conf.appwriteProjectId);
-
         this.databases = new Databases(this.client);
         this.bucket = new Storage(this.client);
     }
@@ -20,23 +19,17 @@ export class authService {
             return await this.databases.createDocument(
                 conf.appwriteDatabaseId,
                 conf.appwriteCollectionId,
-                ID.unique(), // ✅ FIXED
+                slug,
                 {
                     title,
-                    slug, // ✅ store slug here instead
                     content,
                     featuredImage,
                     status,
                     userId,
-                },
-                [
-                    Permission.read(Role.any()), // or Role.user(userId)
-                    Permission.update(Role.user(userId)),
-                    Permission.delete(Role.user(userId)),
-                ]
-            );
+                }
+            )
         } catch (error) {
-            throw error;
+            console.log("Appwrite serive :: createPost :: error", error);
         }
     }
 
@@ -51,10 +44,11 @@ export class authService {
                     content,
                     featuredImage,
                     status,
+
                 }
-            );
+            )
         } catch (error) {
-            throw error;
+            console.log("Appwrite serive :: updatePost :: error", error);
         }
     }
 
@@ -64,61 +58,13 @@ export class authService {
                 conf.appwriteDatabaseId,
                 conf.appwriteCollectionId,
                 slug
-            );
-            return true;
-        } catch (error) {
-            console.log("Error deleting post:", error);
-            return false;
-        }
-    }
 
-    async getPosts(userId) {
-        try {
-            return await this.databases.listDocuments(
-                conf.appwriteDatabaseId,
-                conf.appwriteCollectionId,
-                [
-                    Query.equal("status", "active"),
-                    Query.equal("userId", userId),
-                ]
-            );
+            )
+            return true
         } catch (error) {
-            console.log("Error getting posts:", error);
-            return false;
+            console.log("Appwrite serive :: deletePost :: error", error);
+            return false
         }
-    }
-
-    async uploadFile(file) {
-        try {
-            return await this.bucket.createFile(
-                conf.appwriteBucketId,
-                ID.unique(),
-                file
-            );
-        } catch (error) {
-            console.log("Error uploading file:", error);
-            return false;
-        }
-    }
-
-    async deleteFile(fileId) {
-        try {
-            await this.bucket.deleteFile(
-                conf.appwriteBucketId,
-                fileId
-            );
-            return true;
-        } catch (error) {
-            console.log("Error deleting file:", error);
-            return false;
-        }
-    }
-
-    getFilePreview(fileId) {
-        return this.bucket.getFileView(
-            conf.appwriteBucketId,
-            fileId
-        ).toString();
     }
 
     async getPost(slug) {
@@ -127,13 +73,65 @@ export class authService {
                 conf.appwriteDatabaseId,
                 conf.appwriteCollectionId,
                 slug
-            );
+
+            )
         } catch (error) {
-            console.log("Error getting single post:", error);
-            return false;
+            console.log("Appwrite serive :: getPost :: error", error);
+            return false
         }
+    }
+
+    async getPosts(queries = [Query.equal("status", "active")]) {
+        try {
+            return await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                queries,
+
+
+            )
+        } catch (error) {
+            console.log("Appwrite serive :: getPosts :: error", error);
+            return false
+        }
+    }
+
+    // file upload service
+
+    async uploadFile(file) {
+        try {
+            return await this.bucket.createFile(
+                conf.appwriteBucketId,
+                ID.unique(),
+                file
+            )
+        } catch (error) {
+            console.log("Appwrite serive :: uploadFile :: error", error);
+            return false
+        }
+    }
+
+    async deleteFile(fileId) {
+        try {
+            await this.bucket.deleteFile(
+                conf.appwriteBucketId,
+                fileId
+            )
+            return true
+        } catch (error) {
+            console.log("Appwrite serive :: deleteFile :: error", error);
+            return false
+        }
+    }
+
+    getFilePreview(fileId) {
+        return this.bucket.getFileView(
+            conf.appwriteBucketId,
+            fileId
+        )
     }
 }
 
-export const service = new authService();
-export default service;
+
+const appwriteService = new Service()
+export default appwriteService

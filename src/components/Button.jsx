@@ -1,23 +1,19 @@
-import React, { Children } from "react";
+import React from "react";
 
-function Button ({
+export default function Button({
     children,
     type = "button",
-    bgColor= 'bg-blue-600',
-    textColor = 'white',
-    className = '',
+    bgColor = "",
+    textColor = "",
+    className = "",
     ...props
 }) {
-    
+    const variantClass = bgColor || "button-primary";
+    const colorClass = textColor || "";
+
     return (
-            <button
-            type={type}
-            className={`px-4 py-2 text-base rounded-lg ${bgColor} ${textColor} ${className}`}
-            {...props}        // ✅ spread here on the element
-        >
+        <button className={`button-base ${variantClass} ${colorClass} ${className}`} type={type} {...props}>
             {children}
         </button>
-    )
+    );
 }
-
-export default Button;
