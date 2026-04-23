@@ -1,149 +1,125 @@
-    import conf from "../config/config";
-    import { Client, ID, Databases, Storage, Query } from "appwrite";
+import conf from "../config/config";
+import { Client, ID, Databases, Storage, Query, Permission, Role } from "appwrite";
 
-    export class authService{
-        client = new Client();
-        databases;
-        bucket;
-        
-        constructor(){
-            this.client
+export class authService {
+    client = new Client();
+    databases;
+    bucket;
+
+    constructor() {
+        this.client
             .setEndpoint(conf.appwriteUrl)
             .setProject(conf.appwriteProjectId);
-            this.databases = new Databases(this.client)
-            this.bucket = new Storage(this.client)
-        }
 
-        // for creating an post after login
-        async createPost({title, slug, content, featuredImage, status, userId}) {
-            try {
-                console.log("Data being sent:", {title, slug, content, featuredImage, status, userId})
-                return await this.databases.createDocument(
-                    conf.appwriteDatabaseId,
-                    conf.appwriteCollectionId,
-                    slug,
-                    {
-                        title,
-                        content,
-                        featuredImage,
-                        status,
-                        userId,
-                    }
-
-                )
-            } 
-            catch (error) {
-                throw error;    
-            }
-        }
-
-        // updating an post
-        async updatePost(slug, {title, content, featuredImage, status}) {
-            try {
-                return await this.databases.updateDocument(
-                    conf.appwriteDatabaseId,
-                    conf.appwriteCollectionId,
-                    slug,
-                    {
-                        title,
-                        content,
-                        featuredImage,
-                        status,
-                    }
-                )
-            } 
-            catch (error) {
-                throw error;    
-            }
-        }
-
-        // for deleting a post
-        async deletePost(slug) {
-            try {
-                await this.databases.deleteDocument(
-                    conf.appwriteDatabaseId,
-                    conf.appwriteCollectionId,
-                    slug,
-                )
-                return true
-            } 
-            catch (error) {
-                console.log("error occured !!!...")  
-                return false
-            }
-        }
-
-        // to get a post on the blog
-        async getPosts(queries = [Query.equal('status', 'active')]) {
-            try {
-                return await this.databases.listDocuments(
-                    conf.appwriteDatabaseId,
-                    conf.appwriteCollectionId,
-                    queries,
-                )
-            } catch (error) {
-                console.log("Error Occured !!!...")
-                return false;    
-            }
-        }
-
-        // making an query to find post who are active
-        // status should be active
-        async getPosts(queries = [Query.equal('status', 'active')]) {
-            try {
-                return await this.databases.listDocuments(
-                    conf.appwriteDatabaseId,
-                    conf.appwriteCollectionId,
-                    queries,
-                )
-            } 
-            catch (error) {
-                console.log("Error Occured !!!...")
-                return false;    
-            }
-        }
-
-        // file uploading service
-        async uploadFile(file) {
-            try {
-                return await this.bucket.createFile(
-                    conf.appwriteBucketId,
-                    ID.unique(),
-                    file                
-                )
-            } 
-            catch (error) {
-                console.log("Error Occured !!!...")
-                return false;    
-            }
-        }
-            // later i have to store and pass this unique id to deleteFile for deleting the post
-
-            // for deleting an file
-            async deleteFile(fileId) {
-                try {
-                    await this.bucket.deleteFile(
-                        conf.appwriteBucketId,
-                        fileId,
-                        // here we are getting file id once someone created an file
-                        // after creating unique id will be genereated and then will be use here
-                    )
-                } 
-                catch (error) {
-                    console.log("Error Occured !!!...")
-                    return false;    
-                }
-            }
-
-            // for preview of the file
-            getFilePreview(fileId){
-                return this.bucket.getFileView(
-                    conf.appwriteBucketId,
-                    fileId,
-                ).toString()
-            }
+        this.databases = new Databases(this.client);
+        this.bucket = new Storage(this.client);
     }
 
-    export const service = new authService;
+    async createPost({ title, slug, content, featuredImage, status, userId }) {
+        try {
+            return await this.databases.createDocument(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                slug,
+                {
+                    title,
+                    content,
+                    featuredImage,
+                    status,
+                    userId,
+                },
+                [
+                    Permission.read(Role.user(userId)),
+                    Permission.update(Role.user(userId)),
+                    Permission.delete(Role.user(userId)),
+                ]
+            );
+        } catch (error) {
+            throw error;
+        }
+    }
 
-    export default service;
+    async updatePost(slug, { title, content, featuredImage, status }) {
+        try {
+            return await this.databases.updateDocument(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                slug,
+                {
+                    title,
+                    content,
+                    featuredImage,
+                    status,
+                }
+            );
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deletePost(slug) {
+        try {
+            await this.databases.deleteDocument(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                slug
+            );
+            return true;
+        } catch (error) {
+            console.log("Error deleting post:", error);
+            return false;
+        }
+    }
+
+    async getPosts(userId) {
+        try {
+            return await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                [
+                    Query.equal("status", "active"),
+                    Query.equal("userId", userId),
+                ]
+            );
+        } catch (error) {
+            console.log("Error getting posts:", error);
+            return false;
+        }
+    }
+
+    async uploadFile(file) {
+        try {
+            return await this.bucket.createFile(
+                conf.appwriteBucketId,
+                ID.unique(),
+                file
+            );
+        } catch (error) {
+            console.log("Error uploading file:", error);
+            return false;
+        }
+    }
+
+    async deleteFile(fileId) {
+        try {
+            await this.bucket.deleteFile(
+                conf.appwriteBucketId,
+                fileId
+            );
+            return true;
+        } catch (error) {
+            console.log("Error deleting file:", error);
+            return false;
+        }
+    }
+
+    getFilePreview(fileId) {
+        return this.bucket.getFileView(
+            conf.appwriteBucketId,
+            fileId
+        ).toString();
+    }
+}
+
+export const service = new authService();
+export default service;
