@@ -27,9 +27,14 @@ function Home() {
                 <Container>
                     <div className="flex flex-wrap">
                         <div className="p-2 w-full">
-                            <h1 className="text-2xl font-bold hover:text-gray-500">
-                                Login to read posts
-                            </h1>
+                            {authStatus ?
+                                <h1 className="text-2xl font-bold hover:text-gray-500">
+                                    Login to read posts.
+                                </h1>
+                                :
+                                <h1 className="text-2xl font-bold hover:text-gray-500">
+                                    Go to All Posts section to see the posts or and upload your also.
+                                </h1>}
                         </div>
                     </div>
                 </Container>
